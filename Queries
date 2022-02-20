@@ -7,29 +7,63 @@ FROM `bigquery-public-data.new_york_citibike.citibike_trips`
 GROUP BY EXTRACT(DAYOFWEEK from starttime) 
 ORDER BY COUNT(tripduration) DESC;
 
+dayofweek | total_rides
+----------|-----------
+   4      |  8377153
+   5      |  8255421
+   3      |  8161606
+   6      |  7872756
+   2      |  7658271
+   7      |  6540825
+   1      |  6242689
+
+
+-- Where 1 - Sunday, 2 - Monday, 3 - Tuesday, 4 - Wednesday, 5 - Thursday, 6 - Friday, 7 - Saturday
+
 -- Overall, the weekend sees fewer rides when compared to the rest of the week. Wednesday, Thursday, and Tuesday see the highest number
 -- of daily rides. But how does this differ when comparing casual riders and members?
 
--- First, let's look at customers (those who purchase 24-hour passes)
+-- First, let's look at customers (those who purchase 24-hour passes). Let's also look at percentages as these will be easier to understand.
 
 SELECT 
-   EXTRACT(DAYOFWEEK from starttime),
-   COUNT(tripduration) AS total_rides
-FROM `bigquery-public-data.new_york_citibike.citibike_trips`
+    EXTRACT(DAYOFWEEK from starttime),
+    ROUND(COUNT(tripduration) * 100.0 / SUM(COUNT(tripduration)) OVER (),0) AS Percentage
+From `bigquery-public-data.new_york_citibike.citibike_trips`
 WHERE usertype = 'Customer'
-GROUP BY EXTRACT(DAYOFWEEK from starttime) 
-ORDER BY COUNT(tripduration) DESC;
+GROUP BY EXTRACT(DAYOFWEEK from starttime)
+ORDER BY Percentage DESC;
+
+dayofweek | total_rides
+----------|-----------
+   7      |  24
+   1      |  22
+   6      |  12
+   2      |  12
+   5      |  10
+   4      |  10
+   3      |  10
 
 -- We can see that the weekend - Saturday and Sunday in that order - see the highest number of rides.
 
 SELECT 
-   EXTRACT(DAYOFWEEK from starttime),
-   COUNT(tripduration) AS total_rides
-FROM `bigquery-public-data.new_york_citibike.citibike_trips`
+    EXTRACT(DAYOFWEEK from starttime),
+    ROUND(COUNT(tripduration) * 100.0 / SUM(COUNT(tripduration)) OVER (),0) AS Percentage
+From `bigquery-public-data.new_york_citibike.citibike_trips`
 WHERE usertype = 'Subscriber'
-GROUP BY EXTRACT(DAYOFWEEK from starttime) 
-ORDER BY COUNT(tripduration) DESC
+GROUP BY EXTRACT(DAYOFWEEK from starttime)
+ORDER BY Percentage DESC;
+
+dayofweek | total_rides
+----------|-----------
+   4      |  17
+   5      |  16
+   3      |  16
+   2      |  15
+   6      |  15
+   7      |  11
+   1      |  10
 
 -- On the other hand, Members with annual subscriptions tend to ride less on the weekends and more during the week.
+-- There is also a more even spread throughout the week, with the percentage points remaining quite stable.
 -- Comparing these two sets of results shows us that Customers are users who may use the day pass to ride the bikes as a weekend hobbie
 -- whereas Subscribers are more likely to be working professionals who have a Monday-Friday schedule.
