@@ -1,0 +1,35 @@
+-- Looking at distribution of rides across the week
+
+SELECT 
+   EXTRACT(DAYOFWEEK from starttime),
+   COUNT(tripduration) AS total_rides
+FROM `bigquery-public-data.new_york_citibike.citibike_trips`
+GROUP BY EXTRACT(DAYOFWEEK from starttime) 
+ORDER BY COUNT(tripduration) DESC;
+
+-- Overall, the weekend sees fewer rides when compared to the rest of the week. Wednesday, Thursday, and Tuesday see the highest number
+-- of daily rides. But how does this differ when comparing casual riders and members?
+
+-- First, let's look at customers (those who purchase 24-hour passes)
+
+SELECT 
+   EXTRACT(DAYOFWEEK from starttime),
+   COUNT(tripduration) AS total_rides
+FROM `bigquery-public-data.new_york_citibike.citibike_trips`
+WHERE usertype = 'Customer'
+GROUP BY EXTRACT(DAYOFWEEK from starttime) 
+ORDER BY COUNT(tripduration) DESC;
+
+-- We can see that the weekend - Saturday and Sunday in that order - see the highest number of rides.
+
+SELECT 
+   EXTRACT(DAYOFWEEK from starttime),
+   COUNT(tripduration) AS total_rides
+FROM `bigquery-public-data.new_york_citibike.citibike_trips`
+WHERE usertype = 'Subscriber'
+GROUP BY EXTRACT(DAYOFWEEK from starttime) 
+ORDER BY COUNT(tripduration) DESC
+
+-- On the other hand, Members with annual subscriptions tend to ride less on the weekends and more during the week.
+-- Comparing these two sets of results shows us that Customers are users who may use the day pass to ride the bikes as a weekend hobbie
+-- whereas Subscribers are more likely to be working professionals who have a Monday-Friday schedule.
